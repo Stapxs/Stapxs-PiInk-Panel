@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_2" data-name="图层 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 299">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #000;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <g id="_本体" data-name="本体">
+    <rect class="cls-1" x="42" y="187" width="28" height="28"/>
+    <rect class="cls-1" x="85" y="201" width="14" height="14"/>
+    <rect class="cls-1" x="112" y="183" width="14" height="14"/>
+    <rect class="cls-1" x="85" y="83" width="14" height="14"/>
+    <rect class="cls-1" x="105" y="105" width="14" height="14"/>
+    <rect class="cls-1" x="137" y="86" width="28" height="28"/>
+    <polygon class="cls-1" points="135.59 227.54 26.5 227.64 26.54 274.5 135.63 274.4 135.63 274.5 139.5 274.5 139.5 274.4 139.5 258.5 167.5 258.5 167.5 274.37 167.5 274.47 182.5 274.46 182.5 274.36 182.46 227.5 182.37 126.5 178.5 126.5 178 126.5 56.5 126.5 56.5 173.5 135.54 173.5 135.59 227.54"/>
+    <polygon class="cls-1" points="242.5 105.47 242.5 123.55 292.48 123.5 292.5 151.42 221.5 151.49 221.5 150.5 221.5 134.5 206.51 134.5 205.5 134.5 205.5 74.5 242.5 74.5 242.5 74.55 255.5 74.53 255.5 56.45 206.53 56.5 206.5 25.58 255.5 25.53 255.5 25.5 274.5 25.5 274.5 25.52 274.5 40.5 292.48 40.5 292.5 40.5 292.5 56.42 292.5 104.5 292.5 105.42 242.5 105.47"/>
+    <rect class="cls-1" x="265" y="173" width="28" height="28"/>
+    <rect class="cls-1" x="206" y="260" width="14" height="14"/>
+    <rect class="cls-1" x="227" y="186" width="26" height="14"/>
+    <rect class="cls-1" x="206" y="210" width="14" height="41"/>
+    <polygon class="cls-1" points="292.5 209.5 292.5 250.62 268.62 274.5 226.5 274.5 226.5 209.5 292.5 209.5"/>
+    <rect class="cls-1" x="23" y="20" width="8" height="8"/>
+    <rect class="cls-1" x="289" y="271" width="8" height="8"/>
+    <polygon class="cls-1" points="26.5 53.16 26.5 72.5 26.5 173.5 73.5 173.5 73.5 72.5 182.5 72.5 182.5 39.5 168.5 39.5 168.5 25.5 73.5 25.5 53.77 25.5 26.5 53.16"/>
+  </g>
+  <g id="_边框" data-name="边框">
+    <polygon class="cls-1" points="305.5 12.5 258.5 12.5 258.5 16.5 305.5 16.5 305.5 38.5 309.5 38.5 309.5 16.5 309.5 12.5 305.5 12.5"/>
+    <polygon class="cls-1" points="322 266.5 292.5 299 322 299 322 266.5"/>
+    <rect class="cls-1" width="249" height="4"/>
+    <rect class="cls-1" x="261" y="0" width="19" height="4"/>
+    <rect class="cls-1" x="295" y="0" width="27" height="4"/>
+    <rect class="cls-1" x="318" y="0" width="4" height="299"/>
+    <rect class="cls-1" x="0" y="295" width="322" height="4"/>
+    <rect class="cls-1" x="0" width="4" height="299"/>
+  </g>
+</svg>
