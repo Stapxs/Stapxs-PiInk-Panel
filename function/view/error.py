@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 import util.draw as drawUtil
-from function.screen import screen as Screen
+from function.screen import Screen
 import re
 
 class Error:
@@ -15,8 +15,8 @@ class Error:
 
     def key_event(self, screen, key):
         if "mouse_double_click" in key:
-            screen.changeView(screen.ERROR_VIEW)
-            screen.ERROR_VIEW = ""
+            screen.changeView(Screen.ERROR_VIEW)
+            Screen.ERROR_VIEW = ""
 
     def mount(self, screen: Screen):
         return self.update(screen)
@@ -38,11 +38,11 @@ class Error:
         drawUtil.text(draw, "错误中断", (svg_width // 2 + 20, 10), 
                       font="src/font/fusion-pixel-10px.ttf", font_size=10, fill="black", mode="left")
         text_allow_width = self.width - svg_width // 2 - 30
-        self.titleScrollIndex, errorMsg = drawUtil.scroll_text(screen.ERROR_MSG, 8, text_allow_width, self.titleScrollIndex, step=2, font_path="src/font/fusion-pixel-8px.ttf")
+        self.titleScrollIndex, errorMsg = drawUtil.scroll_text(Screen.ERROR_MSG, 8, text_allow_width, self.titleScrollIndex, step=2, font_path="src/font/fusion-pixel-8px.ttf")
         drawUtil.text(draw, errorMsg, (svg_width // 2 + 20, 30),
                       font="src/font/fusion-pixel-8px.ttf", font_size=8, fill="black", mode="left")
         # 画条分割线
-        errorInfo = drawUtil.wrap_text_for_draw(self.__extract_first_traceback_line(screen.ERROR_INFO), 8, text_allow_width, font_path="src/font/fusion-pixel-8px.ttf")
+        errorInfo = drawUtil.wrap_text_for_draw(self.__extract_first_traceback_line(Screen.ERROR_INFO), 8, text_allow_width, font_path="src/font/fusion-pixel-8px.ttf")
         draw.line((svg_width // 2 + 20, 45, self.width - 10, 45), fill="black", width=1)
         drawUtil.text(draw, errorInfo, (svg_width // 2 + 20, 50),
                       font="src/font/fusion-pixel-8px.ttf", font_size=8, fill="black", mode="left")

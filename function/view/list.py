@@ -1,6 +1,6 @@
 from function.component.icon_list import icon_list
 from PIL import Image
-from function.screen import screen as Screen
+from function.screen import Screen
 
 class List:
 
@@ -61,7 +61,7 @@ class List:
 
     def update(self, screen: Screen):
         self.sumStayTime += screen.lastRenderTime
-        if self.sumStayTime > 5:
+        if self.sumStayTime > 7:
             self.listView.setIndex(self.homeIndex)
             screen.changeView("home")
 

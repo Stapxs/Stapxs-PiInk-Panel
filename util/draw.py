@@ -1,5 +1,5 @@
 from PIL import Image, ImageFont, ImageDraw
-from function.screen import screen as Screen
+from function.screen import Screen
 import cairosvg
 import io
 import numpy as np

@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 import util.draw as drawUtil
-from function.screen import screen as Screen
+from function.screen import Screen
 
 class Load:
 

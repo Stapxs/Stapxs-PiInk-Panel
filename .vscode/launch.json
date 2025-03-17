@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "模拟绘制屏幕",
+            "name": "main.py",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
