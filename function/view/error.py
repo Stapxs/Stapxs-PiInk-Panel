@@ -1,13 +1,13 @@
 from PIL import Image, ImageDraw
 import util.draw as drawUtil
+from function.screen import screen as Screen
 import re
 
 class Error:
 
-    def __init__(self, width, height, debug=False):
+    def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.debug = debug
 
         self.rotation = 0
 
@@ -18,7 +18,7 @@ class Error:
             screen.changeView(screen.ERROR_VIEW)
             screen.ERROR_VIEW = ""
 
-    def mount(self, screen):
+    def mount(self, screen: Screen):
         return self.update(screen)
 
     def update(self, screen):

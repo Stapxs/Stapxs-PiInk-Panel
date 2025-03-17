@@ -1,4 +1,5 @@
-from PIL import Image, ImageFont
+from PIL import Image, ImageFont, ImageDraw
+from function.screen import screen as Screen
 import cairosvg
 import io
 import numpy as np
@@ -43,9 +44,10 @@ def svg(svg_path, width, height, rotation = 0):
     if rotation != 0:
         svg_image = svg_image.rotate(rotation)
     svg_image = alpha_to_color(svg_image)
-    # draw = ImageDraw.Draw(svg_image)
-    # draw.line((width / 2 - 2, height / 2, width / 2 + 2, height / 2), fill="red")
-    # draw.line((width / 2, height / 2 - 2, width / 2, height / 2 + 2), fill="red")
+    if Screen.DEBUG:
+        draw = ImageDraw.Draw(svg_image)
+        draw.line((width / 2 - 2, height / 2, width / 2 + 2, height / 2), fill="red")
+        draw.line((width / 2, height / 2 - 2, width / 2, height / 2 + 2), fill="red")
     return svg_image
 
 def text(draw, text, position, font=None, font_size=16, fill="black", mode="center"):

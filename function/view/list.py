@@ -4,42 +4,40 @@ from function.screen import screen as Screen
 
 class List:
 
-    def __init__(self, width, height, debug=False):
+    def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.debug = debug
         
         self.listView: icon_list = None
-        self.sleepTime = 0
         self.sumStayTime = 0
 
         self.list = [{
-                "icon": "src/svg/wifi-solid.svg",
+                "icon": "src/svg/wifi.svg",
                 "name": "Wi-Fi",
                 "view": "wifi"
             },
             {
-                "icon": "src/svg/bluetooth-brands.svg",
+                "icon": "src/svg/bluetooth_link.svg",
                 "name": "蓝牙",
                 "view": "bluetooth"
             },
             {
-                "icon": "src/svg/gear-solid.svg",
+                "icon": "src/svg/settings.svg",
                 "name": "设置",
                 "view": "setting"
             },
             {
-                "icon": "src/svg/house-chimney-solid.svg",
+                "icon": "src/svg/home.svg",
                 "name": "主页",
                 "view": "home"
             },
             {
-                "icon": "src/svg/circle-info-solid.svg",
+                "icon": "src/svg/info.svg",
                 "name": "关于",
                 "view": "about"
             },
             {
-                "icon": "src/svg/power-off-solid.svg",
+                "icon": "src/svg/close.svg",
                 "name": "重启",
                 "view": "reboot"
             },
@@ -56,15 +54,14 @@ class List:
             screen.changeView(self.list[self.listView.nowIndex]["view"])
 
     def mount(self, screen: Screen):
-        self.sleepTime = screen.FLUSH_TIME
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
 
         self.listView = icon_list(self.width, self.height, self.list)
         return self.listView.mount(image)
 
     def update(self, screen: Screen):
-        self.sumStayTime += screen.FLUSH_TIME
-        if self.sumStayTime > 10:
+        self.sumStayTime += screen.lastRenderTime
+        if self.sumStayTime > 5:
             self.listView.setIndex(self.homeIndex)
             screen.changeView("home")
 

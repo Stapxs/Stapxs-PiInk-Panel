@@ -4,11 +4,10 @@ from function.screen import screen as Screen
 
 class Load:
 
-    def __init__(self, width, height, debug=False):
+    def __init__(self, width, height):
     
         self.width = width
         self.height = height
-        self.debug = debug
 
         self.sumTime = 0
         self.size = 80
@@ -19,7 +18,7 @@ class Load:
     def mount(self, screen):
         return self.update(screen)
 
-    def update(self, screen):
+    def update(self, screen: Screen):
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
 
         draw = ImageDraw.Draw(image)
@@ -36,8 +35,7 @@ class Load:
         svg_image = drawUtil.svg(svg_path, svg_width, svg_height)
         image.paste(svg_image, position)
 
-        self.sumTime += Screen.FLUSH_TIME
-        if self.sumTime >= 1:
+        if screen.activeTime >= 3:
             screen.changeView("list")
 
         return image
