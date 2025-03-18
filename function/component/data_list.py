@@ -5,7 +5,9 @@ import util.draw as drawUtil
 class DataList:
     def __init__(self, position, width: int, height: int, data_list: list):
         '''
-        初始化数据列表
+        初始化数据列表\n
+        本组件支持自适应布局，绘制在 position、width、height 控制的矩形内，不必一定要传屏幕的大小。\n
+        注意：数据列表的第一项为返回按钮，会自动添加；如果按 index 处理 interactive 事件记得留意。
 
         Params:
             width: int, 宽度
@@ -71,7 +73,7 @@ class DataList:
     
     # ========================================
 
-    def __draw_list(self, image: Image, status="normal"):
+    def __draw_list(self, image: Image):
         '''
         绘制数据列表
         

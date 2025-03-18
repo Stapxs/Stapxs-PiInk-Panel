@@ -1,6 +1,7 @@
 from function.component.data_list import DataList
-from PIL import Image, ImageDraw
+from function.component.pop_box import PopBox
 from function.screen import Screen
+from PIL import Image, ImageDraw
 import util.draw as drawUtil
 
 class Wifi:
@@ -19,6 +20,7 @@ class Wifi:
                 "title": "MiPhone12",
                 "content": "已连接 / WPA2",
                 "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
+                "connected": True,
                 "quality": 61,
                 "max_quality": 70,
                 "signal": -60,
@@ -27,22 +29,26 @@ class Wifi:
             {
                 "title": "4500 块的 iPhone 16e",
                 "content": "WAP3",
-                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"]
+                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
+                "connected": False
             },
             {
                 "title": "ChinaNet-7W1q",
                 "content": "WPA2",
-                "icon": None
+                "icon": None,
+                "connected": False
             },
             {
                 "title": "北宋电信",
                 "content": "WPA2",
-                "icon": None
+                "icon": None,
+                "connected": False
             },
             {
                 "title": "05-KF01",
                 "content": "WPA2",
-                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"]
+                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
+                "connected": False
             }
         ]
         self.connectIndex = 0
@@ -50,23 +56,36 @@ class Wifi:
     def key_event(self, screen: Screen, key: list[str]):
         self.sumStayTime = 0
         if "down" in key:
-            self.listView.next()
+            if self.popBox.showing:
+                self.popBox.next()
+            else:
+                self.listView.next()
         elif "up" in key:
-            self.listView.prev()
+            if not self.popBox.showing:
+                self.listView.prev()
         elif "enter" in key:
-            self.listView.interactive(self.__list_interactive)
+            if self.popBox.showing:
+                self.popBox.interactive(self.__pop_interactive)
+            else:
+                self.listView.interactive(self.__list_interactive)
 
     def mount(self, screen: Screen):
         self.screen = screen
 
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
         self.listView = DataList((115, 26), self.width - 120, self.height - 30, self.list)
+        self.popBox = PopBox((self.width // 5, 15), self.width // 5 * 3, self.height - 30, "提醒")
         return self.listView.mount(image)
 
     def update(self, screen: Screen):
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
         image = self.__draw_connected_info(image)
-        return self.listView.update(image)
+        image = self.listView.update(image)
+        if self.popBox.showing:
+            image = self.popBox.draw_mask(image)
+        image = self.popBox.update(image)
+
+        return image
     
     def unmount(self, screen: Screen):
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
@@ -75,12 +94,33 @@ class Wifi:
     
     # ===============================
 
+    def __pop_interactive(self, button: dict, data: dict):
+        '''
+        弹窗交互事件
+        '''
+        if button["action"] == "connect":
+            pass
+        elif button["action"] == "disconnect":
+            pass
+        self.popBox.show(False)
+
     def __list_interactive(self, index: int, item: dict):
         '''
         列表交互事件
         '''
         if index == 0:
             self.screen.changeView("list")
+        else:
+            buttons = [{"text": "取消", "action": "back"}]
+            if item["connected"] == False:
+                buttons.append({"text": "连接", "action": "connect"})
+            else:
+                buttons.append({"text": "断开", "action": "disconnect"})
+            self.popBox.set_buttons(buttons)
+            self.popBox.set_content("是否" + ("连接到 " if item["connected"] == False else "断开 ") + item["title"] + "?")
+            self.popBox.set_data(item)
+
+            self.popBox.show()
 
     def __draw_connected_info(self, image):
         draw = ImageDraw.Draw(image)

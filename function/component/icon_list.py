@@ -3,17 +3,18 @@ import math
 import util.draw as drawUtil
 
 class IconList:
-    def __init__(self, width: int, height: int, icon_list: list):
+    def __init__(self, screen_width: int, screen_height: int, icon_list: list):
         '''
-        初始化图标列表
+        初始化图标列表\n
+        本组件不支持自适应布局，将会绘制在整个屏幕尺寸下；请传递屏幕的大小。
 
         Params:
             width: int, 宽度
             height: int, 高度
             icon_list: list, 图标列表
         '''
-        self.width = width
-        self.height = height
+        self.screen_width = screen_width
+        self.screen_height = screen_height
         self.icon_list = icon_list
 
         self.nowIndex = len(icon_list) // 2
@@ -80,12 +81,12 @@ class IconList:
             status: str, 图标状态<br>--> normal: 正常列表<br>--> list: 仅列表（无选中）<br>--> main: 仅中心图标<br>--> big: 仅中心图标(大)
         '''
         # 计算尺寸和位置
-        icon_size = self.height - 19 - (self.height * 0.23) * 2       # 图标大小
-        icon_top = self.height * 0.15 + 19                            # 图标顶部位置
+        icon_size = self.screen_height - 19 - (self.screen_height * 0.23) * 2       # 图标大小
+        icon_top = self.screen_height * 0.15 + 19                            # 图标顶部位置
         icon_margin = icon_size / 3                                   # 图标间距
         
         # 计算可见图标数量
-        show_count = math.ceil((self.width - icon_size) / (icon_size + icon_margin)) + 1
+        show_count = math.ceil((self.screen_width - icon_size) / (icon_size + icon_margin)) + 1
         if show_count % 2 == 0:
             show_count += 1
         show_count = max(show_count, 3)
@@ -93,7 +94,7 @@ class IconList:
         # 计算布局参数
         middle_index = (show_count - 1) // 2
         group_width = show_count * icon_size + (show_count - 1) * icon_margin
-        group_margin = (self.width - group_width) / 2
+        group_margin = (self.screen_width - group_width) / 2
         
         # 处理边界情况
         start_index = 0
@@ -137,11 +138,11 @@ class IconList:
                                   fill="white")
                     # 绘制图标名称
                     drawUtil.text(draw, used_icon_list[i]["name"], 
-                                 (self.width/2, icon_top + icon_size + 18), 
+                                 (self.screen_width/2, icon_top + icon_size + 18), 
                                  font_size=10, font="src/font/fusion-pixel-10px.ttf")
                 # 主图标
                 if status == "big":
-                    big_icon_size = self.height - 19 - (self.height * 0.15) * 2
+                    big_icon_size = self.screen_height - 19 - (self.screen_height * 0.15) * 2
                     point_move = (big_icon_size - icon_size) // 2
                     icon_image = drawUtil.svg(used_icon_list[i]["icon"], big_icon_size, big_icon_size)
                     image.paste(icon_image, (int(icon_point_list[i][0] - point_move), int(icon_point_list[i][1] - point_move)))
@@ -165,10 +166,10 @@ class IconList:
             image: Image, 图片
         '''
         draw = ImageDraw.Draw(image)
-        bar_full_width = self.width * 0.7
+        bar_full_width = self.screen_width * 0.7
         bar_width = (bar_full_width - len(self.icon_list) - 1) / len(self.icon_list)
         # 左右边框
-        bar_left = (self.width - bar_full_width) / 2
+        bar_left = (self.screen_width - bar_full_width) / 2
         draw.rectangle((bar_left - 2, 5, bar_left + bar_full_width, 9), fill="black")
         draw.rectangle((bar_left - 1, 5, bar_left + bar_full_width - 1, 9), fill="white")
         # 滚动条
