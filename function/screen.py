@@ -96,8 +96,11 @@ class Screen:
             key: List[str], 键盘事件
         '''
         
-        if self.activeTime >= Screen.MAX_FLUSH_TIME and "mouse_double_click" in key:
-            self.wakeUpScreen()
+        if self.activeTime >= Screen.MAX_FLUSH_TIME:
+            if "enter" in key:
+                self.wakeUpScreen()
+            else:
+                return
         elif self.nowView != None:
             self.nowView.key_event(self, key)
 
@@ -109,7 +112,6 @@ class Screen:
         screenRenderTime = None
         screenFullRenderTime = 0
         mounted = False
-        dvLastImage = None
         # 初始化 matplotlib
         fig, ax = plt.subplots()
         if not self.DEBUG:
@@ -181,9 +183,9 @@ class Screen:
                     if view_image is not None:
                         ax.clear()
                         # 锐化图像
-                        view_image = view_image.filter(ImageFilter.SHARPEN)
+                        # view_image = view_image.filter(ImageFilter.SHARPEN)
                         if self.DEBUG:
-                            dvLastImage = view_image
+                            view_image = view_image.convert('1')
                             plt.imshow(view_image, cmap='gray')
                             plt.draw()
                             plt.pause(Screen.DEBUG_FLUSH_TIME)

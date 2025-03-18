@@ -24,7 +24,7 @@ def alpha_to_color(image, color=(255, 255, 255)):
     x = np.dstack([r, g, b, a])
     return Image.fromarray(x, 'RGBA')
 
-def svg(svg_path, width, height, rotation = 0):
+def svg(svg_path, width, height, rotation = 0, fill_background = True):
     '''
     将 SVG 转换为 Image 对象
 
@@ -43,14 +43,17 @@ def svg(svg_path, width, height, rotation = 0):
     svg_image = Image.open(io.BytesIO(png_data)).convert("RGBA")
     if rotation != 0:
         svg_image = svg_image.rotate(rotation)
-    svg_image = alpha_to_color(svg_image)
-    if Screen.DEBUG:
-        draw = ImageDraw.Draw(svg_image)
-        draw.line((width / 2 - 2, height / 2, width / 2 + 2, height / 2), fill="red")
-        draw.line((width / 2, height / 2 - 2, width / 2, height / 2 + 2), fill="red")
+    if fill_background:
+        svg_image = alpha_to_color(svg_image)
+    else:
+        svg_image = svg_image.convert("RGB")
+    # if Screen.DEBUG:
+    #     draw = ImageDraw.Draw(svg_image)
+    #     draw.line((width / 2 - 2, height / 2, width / 2 + 2, height / 2), fill="red")
+    #     draw.line((width / 2, height / 2 - 2, width / 2, height / 2 + 2), fill="red")
     return svg_image
 
-def text(draw, text, position, font=None, font_size=16, fill="black", mode="center"):
+def text(draw, text, position, font=None, font_size=16, fill="black", mode="center") -> tuple:
     '''
     绘制文本
 
@@ -77,6 +80,8 @@ def text(draw, text, position, font=None, font_size=16, fill="black", mode="cent
         draw.text((position[0] - text_width / 2, position[1] - text_height / 2), text, font=font, fill=fill)
     elif mode == "left":
         draw.text((position[0], position[1]), text, font=font, fill=fill)
+    elif mode == "right":
+        draw.text((position[0] - text_width, position[1]), text, font=font, fill=fill)
 
     return text_width, text_height
 

@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw
 import math
 import util.draw as drawUtil
 
-class icon_list:
+class IconList:
     def __init__(self, width: int, height: int, icon_list: list):
         '''
         初始化图标列表
@@ -30,6 +30,8 @@ class icon_list:
 
     def setIndex(self, index: int):
         self.nowIndex = index
+
+    # ========================================
 
     def mount(self, image: Image):
         image = self.__draw_bar(image)

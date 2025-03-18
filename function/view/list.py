@@ -1,4 +1,4 @@
-from function.component.icon_list import icon_list
+from function.component.icon_list import IconList
 from PIL import Image
 from function.screen import Screen
 
@@ -8,7 +8,7 @@ class List:
         self.width = width
         self.height = height
         
-        self.listView: icon_list = None
+        self.listView: IconList = None
         self.sumStayTime = 0
 
         self.list = [{
@@ -56,7 +56,7 @@ class List:
     def mount(self, screen: Screen):
         image = Image.new('RGBA', (self.width, self.height), (255, 255, 255, 0))
 
-        self.listView = icon_list(self.width, self.height, self.list)
+        self.listView = IconList(self.width, self.height, self.list)
         return self.listView.mount(image)
 
     def update(self, screen: Screen):
