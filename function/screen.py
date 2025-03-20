@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import importlib
 import traceback
 import time
-from PIL import ImageDraw, Image, ImageFilter
+from PIL import ImageDraw, Image
 from matplotlib.widgets import Button
 from log4py import Logger
 
