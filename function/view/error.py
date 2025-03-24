@@ -42,7 +42,7 @@ class Error:
         drawUtil.text(draw, errorMsg, (svg_width // 2 + 20, 30),
                       font="src/font/fusion-pixel-8px.ttf", font_size=8, fill="black", mode="left")
         # 画条分割线
-        errorInfo = drawUtil.wrap_text_for_draw(self.__extract_first_traceback_line(Screen.ERROR_INFO), 8, text_allow_width, font_path="src/font/fusion-pixel-8px.ttf")
+        errorInfo = drawUtil.wrap_text_for_draw(self.__extract_first_traceback_line(Screen.CURRENT_PATH, Screen.ERROR_INFO), 8, text_allow_width, font_path="src/font/fusion-pixel-8px.ttf")
         draw.line((svg_width // 2 + 20, 45, self.width - 10, 45), fill="black", width=1)
         drawUtil.text(draw, errorInfo, (svg_width // 2 + 20, 50),
                       font="src/font/fusion-pixel-8px.ttf", font_size=8, fill="black", mode="left")
@@ -58,9 +58,12 @@ class Error:
     
     # ============================================
     
-    def __extract_first_traceback_line(self, tb_str):
+    def __extract_first_traceback_line(self, current_path: str, tb_str: str):
         """提取 Traceback 信息中的第一个文件路径及行号"""
         match = re.search(r'File "(.+?)", line (\d+)', tb_str)
         if match:
-            return f"{match.group(1)}:{match.group(2)}"
+            strLine = f"{match.group(1)}:{match.group(2)}"
+            if strLine.startswith(current_path):
+                strLine = strLine[len(current_path):]
+            return strLine
         return "未知的错误"

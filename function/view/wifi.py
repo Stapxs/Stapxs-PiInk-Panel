@@ -3,6 +3,7 @@ from function.component.pop_box import PopBox
 from function.screen import Screen
 from PIL import Image, ImageDraw
 import util.draw as drawUtil
+import util.system as SystemUtil
 
 class Wifi:
 
@@ -16,41 +17,22 @@ class Wifi:
 
         self.screen = None
 
-        self.list = [{
-                "title": "MiPhone12",
-                "content": "已连接 / WPA2",
-                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
-                "connected": True,
-                "quality": 61,
-                "max_quality": 70,
-                "signal": -60,
-                "ip": "192.168.167.230"
-            },
-            {
-                "title": "4500 块的 iPhone 16e",
-                "content": "WAP3",
-                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
-                "connected": False
-            },
-            {
-                "title": "ChinaNet-7W1q",
-                "content": "WPA2",
-                "icon": None,
-                "connected": False
-            },
-            {
-                "title": "北宋电信",
-                "content": "WPA2",
-                "icon": None,
-                "connected": False
-            },
-            {
-                "title": "05-KF01",
-                "content": "WPA2",
-                "icon": ["src/svg/locking.svg", "src/svg/locking_white.svg"],
-                "connected": False
-            }
-        ]
+        wifiList = SystemUtil.get_wifi_list(True)
+        nowConnect = SystemUtil.get_connected_wifi()
+        # 整理数据
+        self.list = []
+        for wifi in wifiList:
+            # 其他信息
+            wifi["content"] = wifi["wpa"]
+            wifi["icon"] = ["src/svg/locking.svg", "src/svg/locking_white.svg"] if wifi["password"] else None
+            # 当前连接
+            wifi["connected"] = False
+            if nowConnect and wifi["title"] == nowConnect["title"]:
+                wifi["connected"] = True
+                wifi["content"] = "已连接 / " + wifi["wpa"]
+                wifi["ip"] = nowConnect["ip"]
+                self.connectIndex = len(self.list)
+            self.list.append(wifi)
         self.connectIndex = 0
 
     def key_event(self, screen: Screen, key: list[str]):

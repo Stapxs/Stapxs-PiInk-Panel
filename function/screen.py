@@ -20,7 +20,9 @@ class Screen:
     ERROR_INFO = ""                 # 错误详情
     ERROR_VIEW = ""                 # 错误视图
 
-    def __init__(self, width: int, height: int, debug=False, drawView=False):
+    CURRENT_PATH = ""               # 当前路径
+
+    def __init__(self, width: int, height: int, debug=False, virtual=False, current_path=""):
         '''
         初始化主屏幕渲染器
 
@@ -31,13 +33,14 @@ class Screen:
         '''
         # Screen 基础信息
         Screen.DEBUG = debug
-        self.drawView = drawView
+        Screen.CURRENT_PATH = current_path
+        self.virtual = virtual
         self.width = width
         self.height = height
 
         # Screen 状态信息
         # self.nowViewName = "load"
-        self.nowViewName = "list"
+        self.nowViewName = "option_acce"
         self.lastViewName = None
         self.nowView = None
         self.changeFlag = False
@@ -49,9 +52,8 @@ class Screen:
         self.lastRenderTime = 0
 
         # 初始化电子墨水屏
-        if not drawView:
-            # 由于测试下不能加载 epd2in13_V3 类，这儿动态导入
-            # from lib.waveshare_epd import epd2in13_V3
+        if not virtual:
+            # 动态导入库
             module = importlib.import_module("lib.waveshare_epd.epd2in13_V3")
             epd2in13_V3 = getattr(module, "epd2in13_V3")
             self.epd = epd2in13_V3.EPD()
@@ -69,7 +71,7 @@ class Screen:
         if self.isSleep:
             log.info("屏幕唤醒……")
             self.isSleep = False
-            if not self.drawView:
+            if not self.virtual:
                 self.epd.init()
                 self.epd.Clear(0xFF)
 
@@ -113,17 +115,16 @@ class Screen:
         screenFullRenderTime = 0
         mounted = False
         # 初始化 matplotlib
-        fig, ax = plt.subplots()
+        self.fig, self.ax = plt.subplots()
         if not self.DEBUG:
             # 非 Debug 模式下没有桌面环境，需要关闭交互模式
             matplotlib.use('Agg')
         else:
-            plt.title("模拟绘制屏幕")
             plt.ion()
         # 添加按钮
         if self.DEBUG:
             plt.subplots_adjust(right=0.8)
-            ax_button = fig.add_axes([0.82, 0.5, 0.12, 0.08])
+            ax_button = self.fig.add_axes([0.82, 0.5, 0.12, 0.08])
             button_A = Button(ax_button, '交互')
             button_A.label.set_fontproperties(matplotlib.font_manager.FontProperties(fname="src/font/fusion-pixel-8px.ttf"))
             button_A.label.set_fontsize(8)
@@ -131,7 +132,7 @@ class Screen:
                 print("click")
                 self.key_event(["mouse_click", "down"])
             button_A.on_clicked(on_click)
-            ax_button = fig.add_axes([0.82, 0.4, 0.12, 0.08])
+            ax_button = self.fig.add_axes([0.82, 0.4, 0.12, 0.08])
             button_B = Button(ax_button, '确认')
             button_B.label.set_fontproperties(matplotlib.font_manager.FontProperties(fname="src/font/fusion-pixel-8px.ttf"))
             button_B.label.set_fontsize(8)
@@ -139,7 +140,7 @@ class Screen:
                 print("double click")
                 self.key_event(["mouse_double_click", "enter"])
             button_B.on_clicked(on_double_click)
-            plt.sca(ax)
+            plt.sca(self.ax)
         # 渲染循环
         while True:
             screenRenderTime = time.time()
@@ -154,7 +155,7 @@ class Screen:
                         # 动态导入视图类
                         module_name = f".view.{self.nowViewName}"
                         module = importlib.import_module(module_name, package=__package__)
-                        cls = getattr(module, self.nowViewName.capitalize())
+                        cls = getattr(module, self.nowViewName.title().replace("_", ""))
                         # 卸载 view 前，调用一次 unmount 方法，此方法负责卸载动画以及资源释放
                         # PS: 为了防止 unmount 方法错误；在弹出错误视图时，不调用 unmount 方法
                         if self.nowView != None and self.nowViewName != "error":
@@ -181,7 +182,7 @@ class Screen:
 
                     # 渲染视图
                     if view_image is not None:
-                        ax.clear()
+                        self.ax.clear()
                         # 锐化图像
                         # view_image = view_image.filter(ImageFilter.SHARPEN)
                         if self.DEBUG:
@@ -192,19 +193,19 @@ class Screen:
                         else:
                             if screenFullRenderTime > 60 * 3:
                                 # 如果连续渲染时间超过 3 分钟，则完整刷新屏幕
-                                if not self.drawView:
+                                if not self.virtual:
                                     self.epd.display(self.epd.getbuffer(view_image))
                                 screenFullRenderTime = 0
-                            elif not self.drawView:
+                            elif not self.virtual:
                                     self.epd.displayPartial(self.epd.getbuffer(view_image))
                 # 睡眠判断
-                if not self.drawView:
+                if not self.virtual:
                     # 因为要等渲染完成之后才能休眠屏幕，所以睡眠判断在最后
                     if self.activeTime > Screen.MAX_FLUSH_TIME:
                         if self.isSleep == False:
                             log.info("触发屏幕休眠……")
                             self.isSleep = True
-                            if not self.drawView:
+                            if not self.virtual:
                                 self.epd.sleep()
                             plt.pause(1)
                         self.skipRender = True
@@ -217,10 +218,6 @@ class Screen:
                     self.activeTime += renderTime
                     if not self.isSleep:
                         screenFullRenderTime += renderTime
-            except ModuleNotFoundError as e:
-                self.__change_view_error(f"视图 {self.nowViewName} 不存在", traceback.format_exc())
-            except AttributeError as e:
-                self.__change_view_error(f"视图 {self.nowViewName} 无效", traceback.format_exc())
             except Exception as e:
                 traceback.print_exc()
                 self.__change_view_error(str(e), traceback.format_exc())
