@@ -1,6 +1,5 @@
 .DS_Store
-!lib/
-!lib/**
+!lib/**/*.so
 tmp
 
 # Byte-compiled / optimized / DLL files
