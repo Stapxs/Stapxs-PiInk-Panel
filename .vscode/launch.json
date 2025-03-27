@@ -6,10 +6,17 @@
     "configurations": [
 
         {
-            "name": "main.py",
+            "name": "运行调试",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "重置屏幕",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "debug_clear.py",
             "console": "integratedTerminal"
         }
     ]

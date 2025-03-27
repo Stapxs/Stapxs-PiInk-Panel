@@ -33,7 +33,6 @@ class Wifi:
                 wifi["ip"] = nowConnect["ip"]
                 self.connectIndex = len(self.list)
             self.list.append(wifi)
-        self.connectIndex = 0
 
     def key_event(self, screen: Screen, key: list[str]):
         self.sumStayTime = 0

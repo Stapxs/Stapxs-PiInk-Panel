@@ -40,7 +40,7 @@ class Screen:
 
         # Screen 状态信息
         # self.nowViewName = "load"
-        self.nowViewName = "option_acce"
+        self.nowViewName = "wifi"
         self.lastViewName = None
         self.nowView = None
         self.changeFlag = False
@@ -55,8 +55,8 @@ class Screen:
         if not virtual:
             # 动态导入库
             module = importlib.import_module("lib.waveshare_epd.epd2in13_V3")
-            epd2in13_V3 = getattr(module, "epd2in13_V3")
-            self.epd = epd2in13_V3.EPD()
+            EPD = getattr(module, "EPD")
+            self.epd = EPD()
             self.epd.init()
             self.epd.Clear(0xFF)
 
@@ -185,7 +185,7 @@ class Screen:
                         self.ax.clear()
                         # 锐化图像
                         # view_image = view_image.filter(ImageFilter.SHARPEN)
-                        if self.DEBUG:
+                        if self.virtual:
                             view_image = view_image.convert('1')
                             plt.imshow(view_image, cmap='gray')
                             plt.draw()

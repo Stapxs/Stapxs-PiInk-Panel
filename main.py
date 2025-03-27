@@ -15,7 +15,7 @@ if __name__ == "__main__":
     virtual = True
 
     screen = Screen(250, 122, debug=debug, virtual=virtual, current_path=current_path)
-    acce = Control(0x18, virtual=virtual)
+    acce = Control(0x18, virtual=virtual, screen=screen)
 
     # 在单独的线程运行
     acce_thread = threading.Thread(target=run_acce, args=(acce,), daemon=True)
