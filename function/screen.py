@@ -13,7 +13,7 @@ log = Logger.get_logger(__name__)
 class Screen:
     DEBUG = False
 
-    DEBUG_FLUSH_TIME = 0.3          # 刷新时间。模拟显示的时候才用，不要用它来计算；单位：秒
+    FLUSH_TIME = 0.7                # 刷新时间。模拟显示的时候以及跳过帧的时候会用；单位：秒
     MAX_FLUSH_TIME = 20             # 最大连续刷新时间。超出之后将进入睡眠模式；单位：秒
 
     ERROR_MSG = ""                  # 错误信息
@@ -22,7 +22,7 @@ class Screen:
 
     CURRENT_PATH = ""               # 当前路径
 
-    def __init__(self, width: int, height: int, debug=False, virtual=False, current_path=""):
+    def __init__(self, width: int, height: int, debug=False, run_mode='virtual', current_path=""):
         '''
         初始化主屏幕渲染器
 
@@ -32,27 +32,26 @@ class Screen:
             debug: bool, 是否开启调试模式
         '''
         # Screen 基础信息
-        Screen.DEBUG = debug
-        Screen.CURRENT_PATH = current_path
-        self.virtual = virtual
-        self.width = width
-        self.height = height
+        Screen.DEBUG = debug                        # 调试模式
+        Screen.CURRENT_PATH = current_path          # 运行路径
+        self.run_mode = run_mode                    # 运行模式
+        self.width = width                          # 屏幕宽度
+        self.height = height                        # 屏幕高度
 
         # Screen 状态信息
         # self.nowViewName = "load"
-        self.nowViewName = "wifi"
-        self.lastViewName = None
-        self.nowView = None
-        self.changeFlag = False
+        self.nowViewName = "list"                   # 当前所在视图名称
+        self.lastViewName = None                    # 上个视图名称
+        self.nowView = None                         # 当前所在视图实例
+        self.changeFlag = False                     # 视图切换标志
 
         # Screen 时间信息
-        self.activeTime = 0
-        self.isSleep = False
-        self.skipRender = False
-        self.lastRenderTime = 0
+        self.activeTime = 0                         # 屏幕活跃时长
+        self.isSleep = False                        # 是否睡眠
+        self.lastRenderTime = 0                     # 上一帧渲染时长（给一些需要计时的视图使用）
 
         # 初始化电子墨水屏
-        if not virtual:
+        if run_mode in ['hardware', 'all']:
             # 动态导入库
             module = importlib.import_module("lib.waveshare_epd.epd2in13_V3")
             EPD = getattr(module, "EPD")
@@ -66,14 +65,11 @@ class Screen:
         '''
         # 重置屏幕唤醒时间
         self.activeTime = 0
-        self.skipRender = False
         # 重置屏幕休眠状态
         if self.isSleep:
             log.info("屏幕唤醒……")
             self.isSleep = False
-            if not self.virtual:
-                self.epd.init()
-                self.epd.Clear(0xFF)
+            self.epd.init()
 
     def changeView(self, viewName: str, force=False):
         '''
@@ -89,26 +85,26 @@ class Screen:
         self.nowViewName = viewName
         self.changeFlag = True
 
-    # key 是个字符串数组，为了兼容连带触发，比如：click 同时也做 down 操作
     def key_event(self, key: list[str]):
         '''
-        键盘事件
+        键盘事件<br>
+        PS：key 是个字符串数组，为了兼容连带触发，比如：click 同时也做 down 操作
 
         Params:
             key: List[str], 键盘事件
         '''
-        
         if self.activeTime >= Screen.MAX_FLUSH_TIME:
             if "enter" in key:
                 self.wakeUpScreen()
             else:
                 return
         elif self.nowView != None:
+            self.activeTime = 0
             self.nowView.key_event(self, key)
 
     def run(self):
         '''
-        运行主屏幕渲染器
+        运行主屏幕渲染
         '''
         # 初始化参数
         screenRenderTime = None
@@ -116,11 +112,12 @@ class Screen:
         mounted = False
         # 初始化 matplotlib
         self.fig, self.ax = plt.subplots()
-        if not self.DEBUG:
-            # 非 Debug 模式下没有桌面环境，需要关闭交互模式
+        if self.run_mode == 'hardware':
+            # 纯硬件显示模式下不显示窗口绘制
             matplotlib.use('Agg')
         else:
             plt.ion()
+        log.info("当前启用的渲染器：" + matplotlib.get_backend())
         # 添加按钮
         if self.DEBUG:
             plt.subplots_adjust(right=0.8)
@@ -147,7 +144,7 @@ class Screen:
             view_image = None
             try:
                 # 绘制主界面
-                if self.skipRender == False:
+                if self.isSleep == False:
                     if self.nowView == None or self.changeFlag:
                         # 如果当前视图为空，则加载到列表视图
                         if self.nowViewName == None:
@@ -183,32 +180,32 @@ class Screen:
                     # 渲染视图
                     if view_image is not None:
                         self.ax.clear()
-                        # 锐化图像
-                        # view_image = view_image.filter(ImageFilter.SHARPEN)
-                        if self.virtual:
+                        # 显示窗口绘制
+                        if self.run_mode in ['virtual', 'all']:
                             view_image = view_image.convert('1')
                             plt.imshow(view_image, cmap='gray')
                             plt.draw()
-                            plt.pause(Screen.DEBUG_FLUSH_TIME)
-                        else:
+                            plt.show()
+                            if self.run_mode == 'virtual':
+                                # 在没有硬件的情况下模仿渲染延迟
+                                plt.pause(Screen.FLUSH_TIME)
+                        # 硬件绘制
+                        if self.run_mode != 'virtual':
                             if screenFullRenderTime > 60 * 3:
                                 # 如果连续渲染时间超过 3 分钟，则完整刷新屏幕
-                                if not self.virtual:
-                                    self.epd.display(self.epd.getbuffer(view_image))
+                                self.epd.display(self.epd.getbuffer(view_image))
                                 screenFullRenderTime = 0
-                            elif not self.virtual:
-                                    self.epd.displayPartial(self.epd.getbuffer(view_image))
+                            else:
+                                self.epd.displayPartial(self.epd.getbuffer(view_image))
                 # 睡眠判断
-                if not self.virtual:
+                if self.run_mode in ['virtual', 'all']:
                     # 因为要等渲染完成之后才能休眠屏幕，所以睡眠判断在最后
                     if self.activeTime > Screen.MAX_FLUSH_TIME:
                         if self.isSleep == False:
                             log.info("触发屏幕休眠……")
                             self.isSleep = True
-                            if not self.virtual:
-                                self.epd.sleep()
-                            plt.pause(1)
-                        self.skipRender = True
+                            self.epd.sleep()
+                        plt.pause(1)
                 # 计算渲染时间，加载时不算
                 renderTime = round(time.time() - screenRenderTime, 2)
                 self.lastRenderTime = renderTime
@@ -218,6 +215,7 @@ class Screen:
                     self.activeTime += renderTime
                     if not self.isSleep:
                         screenFullRenderTime += renderTime
+
             except Exception as e:
                 traceback.print_exc()
                 self.__change_view_error(str(e), traceback.format_exc())

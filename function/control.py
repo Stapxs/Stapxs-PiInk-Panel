@@ -10,11 +10,11 @@ class Control:
     ACCER_CHIP_ID = None         
     ACCER_DATA = []          # 数据
 
-    def __init__(self, address = 0x19, virtual=False, screen: Screen = None):
-        self.virtual = virtual
+    def __init__(self, address = 0x19, has_hardware=False, screen: Screen = None):
+        self.has_hardware = has_hardware
         self.screen = screen
 
-        if not self.virtual:
+        if has_hardware:
             # 动态导入库
             module = importlib.import_module("lib.DFRobot_LIS.DFRobot_LIS2DW12")
             DFRobot_LIS2DW12_I2C = getattr(module, "DFRobot_LIS2DW12_I2C")
@@ -29,8 +29,8 @@ class Control:
             self.acce.set_data_rate(self.acce.RATE_800HZ)
 
             self.acce.enable_tap_detection_on_z(True)
-            self.acce.set_tap_threshold_on_z(0.3)
-            self.acce.set_tap_dur(dur = 20)         # n * 1.25ms
+            self.acce.set_tap_threshold_on_z(0.2)
+            self.acce.set_tap_dur(dur = 1)         # n * 1.25ms
 
             self.acce.set_tap_mode(self.acce.BOTH_SINGLE_DOUBLE)
 
@@ -40,7 +40,7 @@ class Control:
     def run(self):
         while True:
             # # 获取数据
-            # if not self.virtual:
+            # if not has_hardware:
             #     x = self.acce.read_acc_x()
             #     y = self.acce.read_acc_y()
             #     z = self.acce.read_acc_z()
@@ -65,4 +65,4 @@ class Control:
 
             if tap == True:
                 tap = False
-                time.sleep(0.5)
+                time.sleep(0.2)
